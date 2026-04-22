@@ -11,18 +11,18 @@
     <header>
         <a href="home.html">Home</a>
         <a href="contatos.html">Contatos</a>
-        <a href="sobre.HTML">Sobre</a>
+        <a href="sobre.html">Sobre</a>
         <a href="faq.html">FAQ</a>
     </header>
-
+ 
     <nav>PARTIFLY 🎵</nav>
-
+ 
     <div class="controls">
         <div class="control-group">
             <label for="bpm-input">BPM:</label>
             <input type="number" id="bpm-input" value="120" min="40" max="300" style="width: 60px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
         </div>
-
+ 
         <div class="control-group">
             <label for="clave-selector">Clave:</label>
             <select id="clave-selector">
@@ -31,7 +31,7 @@
                 <option value="imagenspap/clave_do.png">Clave de Dó</option>
             </select>
         </div>
-
+ 
         <div class="control-group">
             <label for="key-selector">Armadura:</label>
             <select id="key-selector">
@@ -42,7 +42,7 @@
                 <option value="♭♭">2 Bemois (Si♭ M)</option>
             </select>
         </div>
-
+ 
         <div class="control-group">
             <label for="tempo-selector">Compasso:</label>
             <select id="tempo-selector">
@@ -52,27 +52,12 @@
                 <option value="6/8">6/8</option>
             </select>
         </div>
-
+ 
         <div class="control-group">
             <label for="note-selector">Figura:</label>
-            <select id="note-selector">
-                <optgroup label="Notas">
-                    <option value="𝅝">Semibreve</option>
-                    <option value="𝅗𝅥">Mínima</option>
-                    <option value="♩">Semínima</option>
-                    <option value="♫">Colcheias (Par)</option>
-                    <option value="𝅘𝅥𝅮">Colcheia</option>
-                    <option value="𝅘𝅥𝅯">Semicolcheia</option>
-                </optgroup>
-                <optgroup label="Pausas">
-                    <option value="𝄻">Pausa Semibreve</option>
-                    <option value="𝄼">Pausa Mínima</option>
-                    <option value="𝄽">Pausa Semínima</option>
-                    <option value="𝄾">Pausa Colcheia</option>
-                </optgroup>
-            </select>
+            <select id="note-selector"></select>
         </div>
-
+ 
         <div class="control-group">
             <label for="accidental-selector">Acidente:</label>
             <select id="accidental-selector">
@@ -82,8 +67,7 @@
                 <option value="♮">♮ Bequadro</option>
             </select>
         </div>
-
-
+ 
         <div class="control-group">
             <label>Ligadura:</label>
             <button id="ligadura-toggle" onclick="toggleLigaduraMode()" style="padding: 5px 10px; border-radius: 5px; cursor: pointer; background: #95a5a6; color: white; border: none;">Ativar</button>
@@ -91,42 +75,55 @@
         
         <div class="control-group">
             <label>&nbsp;</label>
+            <!-- FIX: nome corrigido para adicionarNovaLinha -->
             <button onclick="adicionarNovaLinha()" class="btn-add">Nova Linha</button>
         </div>
-
+ 
         <div class="control-group">
             <label>&nbsp;</label>
             <button onclick="limparPartitura()" class="btn-clear">Limpar Tudo</button>
         </div>
-
+ 
         <div class="control-group">
             <label>Borracha:</label>
             <button id="eraser-btn" onclick="toggleEraser()" style="padding: 5px 15px; border-radius: 5px; cursor: pointer; background: #95a5a6; color: white; border: none;">Desativada</button>
         </div>
+ 
+        <!-- FIX: botões de salvar e carregar adicionados -->
+        <div class="control-group">
+            <label>&nbsp;</label>
+            <button id="btn-salvar-cloud" class="btn-add">💾 Salvar</button>
+        </div>
+ 
+        <div class="control-group">
+            <label>&nbsp;</label>
+            <button id="btn-carregar-cloud" class="btn-add">📂 Carregar</button>
+        </div>
     </div>
-
+ 
     <div id="folha-musica">
+        <!-- FIX: IDs únicos substituídos por classes para permitir múltiplos pentagramas -->
         <div class="preview-container" id="staff-clickable">
-            <div id="bpm-display" class="bpm-text"></div>
-            
-            
+            <div class="bpm-text"></div>
+ 
             <div class="staff-line"></div>
             <div class="staff-line"></div>
             <div class="staff-line"></div>
             <div class="staff-line"></div>
             <div class="staff-line"></div>
-            
-            <div id="measures-container"></div>
-            <div id="notes-container"></div>
-            
-           <svg id="slur-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 99;"></svg>
-            <img src="imagenspap/clave_sol.png" alt="Clave" class="clef" id="main-clef">
-            <div id="key-signature" class="key-sig"></div>
-            <div id="time-signature" class="time-sig"></div>
+ 
+            <div class="measures-container"></div>
+            <div class="notes-container"></div>
+ 
+            <svg class="slur-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 99;"></svg>
+            <img src="imagenspap/clave_sol.png" alt="Clave" class="clef">
+            <div class="key-sig"></div>
+            <div class="time-sig"></div>
             <div class="final-bar"></div>
         </div>
     </div>
-
-    <script src="aaa.js"></script>
+ 
+    <!-- FIX: type="module" para os imports do Firebase funcionarem -->
+    <script type="module" src="aaa.js"></script>
 </body>
 </html>

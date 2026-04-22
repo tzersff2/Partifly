@@ -1,219 +1,319 @@
-const claveSelector = document.getElementById('clave-selector');
-const tempoSelector = document.getElementById('tempo-selector');
-const keySelector = document.getElementById('key-selector');
-const noteSelector = document.getElementById('note-selector');
-const bpmInput = document.getElementById('bpm-input');
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+import { FIGURAS, LABELS_FIGURAS } from "./figuras.js";
+ 
+const firebaseConfig = {
+    apiKey: "AIzaSyDgPknkzS8dH5dWqPctRSW3OoIoY4UXwzU",
+    authDomain: "partifly-7cb1a.firebaseapp.com",
+    projectId: "partifly-7cb1a",
+    storageBucket: "partifly-7cb1a.firebasestorage.app",
+    messagingSenderId: "828238404697",
+    appId: "1:828238404697:web:a45c4d317e1111c9b96548"
+};
+ 
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+ 
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+    }
+});
+ 
+function inicializarSelectFiguras() {
+    const sel = document.getElementById('note-selector');
+    sel.innerHTML = '';
+ 
+    const grupos = [
+        {
+            label: 'Notas',
+            figuras: ['semibreve','minima','minima_pont','seminima','seminima_pont',
+                      'colcheia','colcheia_pont','semicolcheia','fusa','semifusa']
+        },
+        {
+            label: 'Pausas',
+            figuras: ['pausa_semibreve','pausa_minima','pausa_seminima',
+                      'pausa_colcheia','pausa_semicolcheia','pausa_fusa']
+        },
+        {
+            label: 'Especiais',
+            figuras: ['fermata']
+        }
+    ];
+ 
+    grupos.forEach(grupo => {
+        const og = document.createElement('optgroup');
+        og.label = grupo.label;
+        grupo.figuras.forEach(id => {
+            const op = document.createElement('option');
+            op.value = id;
+            op.textContent = LABELS_FIGURAS[id];
+            og.appendChild(op);
+        });
+        sel.appendChild(og);
+    });
+}
+ 
+const claveSelector      = document.getElementById('clave-selector');
+const tempoSelector      = document.getElementById('tempo-selector');
+const keySelector        = document.getElementById('key-selector');
+const noteSelector       = document.getElementById('note-selector');
+const bpmInput           = document.getElementById('bpm-input');
 const accidentalSelector = document.getElementById('accidental-selector');
-
+ 
 let ligaduraMode = false;
-let eraserMode = false;
+let eraserMode   = false;
 let primeiraNotaLigadura = null;
-
+ 
+ 
 function getDinamicoInicioX() {
     const numSimbolos = keySelector.value.length;
     return 110 + (numSimbolos * 22);
 }
-
-function configurarClique(pauta) {
-    pauta.addEventListener('mousedown', function(e) {
-        // 1. LÓGICA DA BORRACHA
-        if (eraserMode) {
-            const nota = e.target.closest('.placed-note');
-            const ligadura = e.target.closest('path'); 
-
-            if (nota) {
-                nota.remove();
-                return;
-            }
-            if (ligadura) {
-                ligadura.remove();
-                return;
-            }
-            return; 
+ 
+window.adicionarNovaLinha = function () {
+    const original = document.getElementById('staff-clickable');
+    const novo = original.cloneNode(true);
+    novo.id = "staff-" + Date.now();
+    novo.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+    novo.querySelector('.notes-container').innerHTML = '';
+    novo.querySelector('.slur-container').innerHTML = '';
+    document.getElementById('folha-musica').appendChild(novo);
+    configurarClique(novo);
+    atualizarTudo();
+};
+ 
+window.limparPartitura = function () {
+    const todasAsPautas = document.querySelectorAll('.preview-container');
+    todasAsPautas.forEach((pauta, i) => {
+        if (i === 0) {
+            pauta.querySelector('.notes-container').innerHTML = '';
+            pauta.querySelector('.slur-container').innerHTML = '';
+        } else {
+            pauta.remove();
         }
-
+    });
+};
+ 
+window.toggleLigaduraMode = function () {
+    ligaduraMode = !ligaduraMode;
+    eraserMode   = false;
+    document.getElementById('ligadura-toggle').textContent = ligaduraMode ? "Ligadura: ON" : "Ativar";
+    document.getElementById('eraser-btn').textContent = "Desativada";
+};
+ 
+window.toggleEraser = function () {
+    eraserMode   = !eraserMode;
+    ligaduraMode = false;
+    document.getElementById('eraser-btn').textContent = eraserMode ? "Ativada" : "Desativada";
+    document.getElementById('ligadura-toggle').textContent = "Ativar";
+};
+ 
+function criarElementoNota(figuraId, acidente) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'placed-note';
+ 
+    if (acidente) {
+        const acc = document.createElement('span');
+        acc.className = 'note-accidental';
+        acc.textContent = acidente;
+        wrapper.appendChild(acc);
+    }
+ 
+    const svgStr = FIGURAS[figuraId];
+    if (svgStr) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = svgStr;
+        wrapper.appendChild(tmp.firstElementChild);
+    }
+ 
+    wrapper.dataset.figura  = figuraId;
+    wrapper.dataset.acidente = acidente || '';
+ 
+    return wrapper;
+}
+ 
+function configurarClique(pauta) {
+    pauta.addEventListener('mousedown', function (e) {
+        if (eraserMode) {
+            const nota     = e.target.closest('.placed-note');
+            const ligadura = e.target.closest('path');
+            if (nota)     { nota.remove();     return; }
+            if (ligadura) { ligadura.remove(); return; }
+            return;
+        }
+ 
         const notaClicada = e.target.closest('.placed-note');
         if (ligaduraMode) {
             if (notaClicada) {
                 if (!primeiraNotaLigadura) {
                     primeiraNotaLigadura = notaClicada;
-                    notaClicada.style.color = "#2ecc71";
+                    notaClicada.style.outline = "2px solid #2ecc71";
                 } else {
-                    desenharLigadura(primeiraNotaLigadura, notaClicada, pauta);
-                    primeiraNotaLigadura.style.color = "black";
+                    desenharLigadura(
+                        primeiraNotaLigadura,
+                        notaClicada,
+                        pauta.querySelector('.slur-container')
+                    );
+                    primeiraNotaLigadura.style.outline = "";
                     primeiraNotaLigadura = null;
                 }
             }
             return;
         }
-
-        if (e.button === 0 && !notaClicada) {
-            const rect = pauta.getBoundingClientRect();
-            const rawX = e.clientX - rect.left;
-            const rawY = e.clientY - rect.top;
-            const margem = getDinamicoInicioX() + 50;
-
-            if (rawX < margem) return;
-
-            const x = margem + (Math.round((rawX - margem) / 40) * 40);
-            const y = 80 + (Math.round((rawY - 80) / 7) * 7);
-
-            const nota = document.createElement('span');
-            nota.className = 'placed-note';
-            
-            const acidente = accidentalSelector.value;
-            if (acidente !== "") {
-                nota.innerHTML = `<span class="note-accidental">${acidente}</span>${noteSelector.value}`;
-            } else {
-                nota.textContent = noteSelector.value;
-            }
-            
-            nota.style.left = `${x}px`;
-            nota.style.top = `${y}px`;
-            
-            // Botão direito para apagar nota individualmente
-            nota.oncontextmenu = (ev) => { 
-                ev.preventDefault(); 
-                nota.remove(); 
-            };
-
-            pauta.querySelector('#notes-container').appendChild(nota);
-        }
-    });
-}
-
-function adicionarNovaLinha() {
-    const folha = document.getElementById('folha-musica');
-
-    const template = document.querySelector('.preview-container');
-    const novaLinha = template.cloneNode(true);
-    
-    novaLinha.id = "pauta-" + Date.now();
-    novaLinha.querySelector('#notes-container').innerHTML = '';
-    novaLinha.querySelector('#measures-container').innerHTML = '';
-    
-    const novoSvg = novaLinha.querySelector('svg');
-    if (novoSvg) {
-        novoSvg.id = "slur-container-" + Date.now();
-        novoSvg.innerHTML = '';
-    }
-
-    folha.appendChild(novaLinha);
-    
-    configurarClique(novaLinha);
-    
-    atualizarTudo();
-}
-function atualizarTudo() {
-    const pautas = document.querySelectorAll('.preview-container');
-    pautas.forEach(p => {
-        const img = p.querySelector('.clef');
-        if(img) {
-            img.src = claveSelector.value;
-            if (claveSelector.value.includes('fa')) img.style.height = "80px";
-            else if (claveSelector.value.includes('do')) img.style.height = "90px";
-            else img.style.height = "140px";
-        }
-
-        const keySig = p.querySelector('.key-sig');
-        if(keySig) keySig.textContent = keySelector.value;
-
-        const partes = tempoSelector.value.split('/');
-        const timeSig = p.querySelector('.time-sig');
-        if(timeSig) {
-            timeSig.innerHTML = `<span>${partes[0]}</span><span>${partes[1]}</span>`;
-            timeSig.style.left = `${getDinamicoInicioX()}px`;
-        }
-
-        const bpmDisplay = p.querySelector('#bpm-display');
-        if(bpmDisplay) bpmDisplay.innerHTML = `♩ = ${bpmInput.value}`;
-
-        const mContainer = p.querySelector('#measures-container');
-        if(mContainer) {
-            mContainer.innerHTML = '';
-            const num = parseInt(partes[0]);
-            const startX = getDinamicoInicioX() + 60;
-            const gap = (780 - startX) / num;
-            for (let i = 1; i <= num; i++) {
-                const b = document.createElement('div');
-                b.className = 'measure-bar';
-                b.style.left = `${startX + (i * gap)}px`;
-                mContainer.appendChild(b);
-            }
-        }
-    });
-}
-
-function desenharLigadura(nota1, nota2, pauta) {
-    const svg = pauta.querySelector('#slur-container');
-    
-    const x1 = parseFloat(nota1.style.left); 
-    const y1 = parseFloat(nota1.style.top);
-    const x2 = parseFloat(nota2.style.left);
-    const y2 = parseFloat(nota2.style.top);
  
-    const adjX1 = x1; 
-    const adjY1 = y1 - 10; 
-    const adjX2 = x2;
-    const adjY2 = y2 - 10;
-
-    const midX = (adjX1 + adjX2) / 2;
-    
-    const distanciaX = Math.abs(adjX2 - adjX1);
-    const curvatura = 25 + (distanciaX * 0.1); 
-
-    const controlY = (adjY1 < 90) ? Math.max(adjY1, adjY2) + curvatura : Math.min(adjY1, adjY2) - curvatura;
-
+        if (e.button === 0 && !notaClicada && e.target.closest('.preview-container')) {
+            const rect  = pauta.getBoundingClientRect();
+            const rawX  = e.clientX - rect.left;
+            const rawY  = e.clientY - rect.top;
+ 
+            const margemX = getDinamicoInicioX() + 30;
+            if (rawX < margemX) return;
+ 
+            const x = Math.round(rawX / 20) * 20;
+            const y = 80 + (Math.round((rawY - 80) / 7) * 7);
+ 
+            const figuraId = noteSelector.value;
+            const acidente = accidentalSelector.value;
+            const nota     = criarElementoNota(figuraId, acidente);
+ 
+            nota.style.left = `${x}px`;
+            nota.style.top  = `${y}px`;
+ 
+            pauta.querySelector('.notes-container').appendChild(nota);
+        }
+    });
+}
+ 
+function atualizarTudo() {
+    document.querySelectorAll('.preview-container').forEach(pauta => {
+        const img = pauta.querySelector('.clef');
+        if (img) {
+            img.src        = claveSelector.value;
+            img.style.height = claveSelector.value.includes('fa')
+                ? "70px" : claveSelector.value.includes('do') ? "80px" : "120px";
+        }
+ 
+        const bpmDisplay = pauta.querySelector('.bpm-text');
+        if (bpmDisplay) bpmDisplay.textContent = `♩ = ${bpmInput.value}`;
+ 
+        const keySig = pauta.querySelector('.key-sig');
+        if (keySig) keySig.textContent = keySelector.value;
+ 
+        const timeSig = pauta.querySelector('.time-sig');
+        if (timeSig) {
+            const partes = tempoSelector.value.split('/');
+            timeSig.innerHTML      = `<span>${partes[0]}</span><span>${partes[1]}</span>`;
+            timeSig.style.left     = `${getDinamicoInicioX()}px`;
+        }
+    });
+}
+ 
+// --- LIGADURAS ---
+function desenharLigadura(n1, n2, svg) {
+    const x1 = parseFloat(n1.style.left);
+    const y1 = parseFloat(n1.style.top);
+    const x2 = parseFloat(n2.style.left);
+    const y2 = parseFloat(n2.style.top);
+ 
+    const midX    = (x1 + x2) / 2;
+    const controlY = Math.min(y1, y2) - 30;
+ 
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    const d = `M ${adjX1} ${adjY1} Q ${midX} ${controlY} ${adjX2} ${adjY2}`;
-    
-    path.setAttribute("d", d);
-    path.setAttribute("class", "slur-path"); 
+    path.setAttribute("d", `M ${x1} ${y1 - 10} Q ${midX} ${controlY} ${x2} ${y2 - 10}`);
+    path.setAttribute("class", "slur-path");
     path.setAttribute("fill", "none");
     path.setAttribute("stroke", "black");
     path.setAttribute("stroke-width", "2");
-    
     svg.appendChild(path);
 }
-
-function toggleLigaduraMode() {
-    ligaduraMode = !ligaduraMode;
-    eraserMode = false;
-    atualizarBotoes();
+ 
+function exportarDadosPartitura() {
+    const pentagramas = [];
+    document.querySelectorAll('.preview-container').forEach((pauta, i) => {
+        const notas = [];
+        pauta.querySelectorAll('.placed-note').forEach(n => {
+            notas.push({
+                figura:   n.dataset.figura,
+                acidente: n.dataset.acidente,
+                left:     n.style.left,
+                top:      n.style.top
+            });
+        });
+        const ligaduras = [];
+        pauta.querySelectorAll('.slur-path').forEach(l => {
+            ligaduras.push({ d: l.getAttribute('d') });
+        });
+        pentagramas.push({ index: i, notas, ligaduras });
+    });
+    return JSON.stringify({ pentagramas }, null, 2);
 }
-
-function toggleEraser() {
-    eraserMode = !eraserMode;
-    ligaduraMode = false; 
-    atualizarBotoes();
+ 
+function downloadPartitura() {
+    const dados = exportarDadosPartitura();
+    const blob  = new Blob([dados], { type: 'application/json' });
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
+    a.href      = url;
+    a.download  = `partitura_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
 }
-
-function atualizarBotoes() {
-    const btnL = document.getElementById('ligadura-toggle');
-    const btnE = document.getElementById('eraser-btn');
-    
-    btnL.style.background = ligaduraMode ? "#2ecc71" : "#95a5a6";
-    btnL.textContent = ligaduraMode ? "Ativo" : "Ativar";
-    
-    btnE.style.background = eraserMode ? "#e74c3c" : "#95a5a6";
-    btnE.textContent = eraserMode ? "Ativa" : "Desativada";
+ 
+function importarDadosPartitura(json) {
+    const data = JSON.parse(json);
+    window.limparPartitura();
+ 
+    data.pentagramas.forEach((pautaData, i) => {
+        let pauta = document.querySelectorAll('.preview-container')[i];
+        if (!pauta) {
+            window.adicionarNovaLinha();
+            const todas = document.querySelectorAll('.preview-container');
+            pauta = todas[todas.length - 1];
+        }
+ 
+        pautaData.notas.forEach(n => {
+            const nota = criarElementoNota(n.figura, n.acidente);
+            nota.style.left = n.left;
+            nota.style.top  = n.top;
+            pauta.querySelector('.notes-container').appendChild(nota);
+        });
+ 
+        const svg = pauta.querySelector('.slur-container');
+        pautaData.ligaduras.forEach(l => {
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", l.d);
+            path.setAttribute("class", "slur-path");
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "black");
+            path.setAttribute("stroke-width", "2");
+            svg.appendChild(path);
+        });
+    });
 }
-
-function limparPartitura() {
-    if (confirm("Deseja apagar todas as notas e ligaduras?")) {
-        document.querySelectorAll('#notes-container, #slur-container').forEach(c => c.innerHTML = '');
-    }
+ 
+function carregarFicheiro() {
+    const input    = document.createElement('input');
+    input.type     = 'file';
+    input.accept   = '.json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader    = new FileReader();
+        reader.onload   = (ev) => importarDadosPartitura(ev.target.result);
+        reader.readAsText(file);
+    };
+    input.click();
 }
-
-claveSelector.onchange = atualizarTudo;
-keySelector.onchange = atualizarTudo;
-tempoSelector.onchange = atualizarTudo;
-bpmInput.oninput = atualizarTudo;
-
-window.onload = () => {
-    const pautaInicial = document.getElementById('staff-clickable');
-    if(pautaInicial) {
-        configurarClique(pautaInicial);
-        atualizarTudo();
-    }
-};
+ 
+document.getElementById('btn-salvar-cloud').addEventListener('click', downloadPartitura);
+document.getElementById('btn-carregar-cloud').addEventListener('click', carregarFicheiro);
+ 
+claveSelector.addEventListener('change', atualizarTudo);
+tempoSelector.addEventListener('change', atualizarTudo);
+keySelector.addEventListener('change', atualizarTudo);
+bpmInput.addEventListener('input', atualizarTudo);
+ 
+inicializarSelectFiguras();
+configurarClique(document.getElementById('staff-clickable'));
+atualizarTudo();

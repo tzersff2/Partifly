@@ -8,7 +8,6 @@
     <title>Partifly - Crie suas partituras</title>
     <link rel="stylesheet" href="aaa.css">
     <style> 
-    /* gradiente do titulo */
         h1 {
             font-size: 5rem;
             margin-top: 40px; 
@@ -17,15 +16,35 @@
             background: linear-gradient(to right, #2c3e50, var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }</style>
+        }
+    </style>
 </head>
 <body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDgPknkzS8dH5dWqPctRSW3OoIoY4UXwzU",
+    authDomain: "partifly-7cb1a.firebaseapp.com",
+    projectId: "partifly-7cb1a",
+    storageBucket: "partifly-7cb1a.firebasestorage.app",
+    messagingSenderId: "828238404697",
+    appId: "1:828238404697:web:a45c4d317e1111c9b96548",
+    measurementId: "G-3DBR5T0077"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 
     <header>
         <a href="home.html" target="_self">Home</a>
         <a href="contatos.html" target="_self">Contatos</a>
         <a href="sobre.HTML" target="_self">Sobre</a>
         <a href="faq.html" target="_self">FAQ</a>
+        <a href="login.html" target="_self">login</a>
     </header>
     
     <nav>PARTIFLY 🎵</nav>
@@ -36,7 +55,7 @@
        As suas proprias musicas a um click de distancia
     </h2>
 
-    <a href="a.html" target="_self" class="cta-button">Começar a Compor Agora</a>
+    <a href="login.html" target="_self" class="cta-button">Começar a Compor Agora</a>
 
     <div class="preview-container">
         <div class="staff-line"></div>

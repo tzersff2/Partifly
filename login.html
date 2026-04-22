@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Partifly</title>
+    <link rel="stylesheet" href="aaa.css">
+    <style>
+        /* Estilos específicos para centralizar o formulário de login */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 80px;
+            width: 100%;
+            max-width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+        }
+        .login-container h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+        input:focus {
+            border-color: var(--primary);
+        }
+        .btn-auth {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: opacity 0.3s;
+        }
+        #btn-entrar {
+            background-color: var(--primary);
+            color: white;
+        }
+        #btn-cadastrar {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .btn-auth:hover {
+            opacity: 0.8;
+        }
+        #mensagem-erro {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            min-height: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="home.html" style="color: white; text-decoration: none; font-weight: bold;">← Voltar</a>
+    </header>
+
+    <nav>PARTIFLY 🎵</nav>
+
+    <div class="login-container">
+        <h2>Bem-vindo</h2>
+        <div class="input-group">
+            <input type="email" id="email" placeholder="E-mail" required>
+            <input type="password" id="password" placeholder="Senha" required>
+        </div>
+        
+        <p id="mensagem-erro"></p>
+
+        <button class="btn-auth" id="btn-entrar">Entrar</button>
+        <button class="btn-auth" id="btn-cadastrar">Criar Conta Grátis</button>
+    </div>
+
+    <script type="module">
+        // Usando a versão estável do SDK que condiz com o resto do projeto
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // Configuração extraída do seu original
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgPknkzS8dH5dWqPctRSW3OoIoY4UXwzU",
+            authDomain: "partifly-7cb1a.firebaseapp.com",
+            projectId: "partifly-7cb1a",
+            storageBucket: "partifly-7cb1a.firebasestorage.app",
+            messagingSenderId: "828238404697",
+            appId: "1:828238404697:web:a45c4d317e1111c9b96548"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const msgErro = document.getElementById('mensagem-erro');
+
+        // Função para traduzir erros comuns do Firebase para o usuário
+        const traduzirErro = (code) => {
+            switch (code) {
+                case 'auth/user-not-found': return "Usuário não encontrado.";
+                case 'auth/wrong-password': return "Senha incorreta.";
+                case 'auth/invalid-email': return "E-mail inválido.";
+                case 'auth/email-already-in-use': return "E-mail já cadastrado.";
+                case 'auth/weak-password': return "A senha deve ter pelo menos 6 caracteres.";
+                default: return "Ocorreu um erro. Tente novamente.";
+            }
+        };
+
+        // Evento de Login
+        document.getElementById('btn-entrar').addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            if(!email || !password) {
+                msgErro.textContent = "Preencha todos os campos.";
+                return;
+            }
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    // Redireciona para a página principal da aplicação (a.html)
+                    window.location.href = "a.html";
+                })
+                .catch(error => {
+                    msgErro.textContent = traduzirErro(error.code);
+                });
+        });
+
+        // Evento de Cadastro
+        document.getElementById('btn-cadastrar').addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            if(!email || !password) {
+                msgErro.textContent = "Preencha todos os campos.";
+                return;
+            }
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    alert("Conta criada com sucesso! Você já pode entrar.");
+                    msgErro.style.color = "green";
+                    msgErro.textContent = "Conta criada! Clique em Entrar.";
+                })
+                .catch(error => {
+                    msgErro.style.color = "#e74c3c";
+                    msgErro.textContent = traduzirErro(error.code);
+                });
+        });
+    </script>
+</body>
+</html>
