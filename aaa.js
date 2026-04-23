@@ -185,6 +185,47 @@ function configurarClique(pauta) {
     });
 }
  
+// Retorna quantos "beats de semínima" cabem num compasso para o compasso escolhido
+function getBeatsPerMeasure() {
+    const compasso = tempoSelector.value; // e.g. "4/4", "3/4", "6/8"
+    const [num, den] = compasso.split('/').map(Number);
+    // Normaliza para unidades de semínima (quarter note)
+    return (num * 4) / den;
+}
+
+// Largura visual de um beat (semínima) em pixels — ajuste este valor para mais/menos espaço
+const PX_POR_BEAT = 48;
+
+function desenharBarrasDeCompasso(pauta) {
+    const measuresContainer = pauta.querySelector('.measures-container');
+    if (!measuresContainer) return;
+
+    // Limpa barras anteriores
+    measuresContainer.innerHTML = '';
+
+    const pautaWidth  = pauta.offsetWidth || 800;
+    const inicioX     = getDinamicoInicioX() + 50; // após clave + armação + compasso
+    const larguraUtil = pautaWidth - inicioX - 14;  // 14px para a barra final
+
+    const beats        = getBeatsPerMeasure();
+    const larguraComp  = PX_POR_BEAT * beats;
+    const numCompassos = Math.floor(larguraUtil / larguraComp);
+
+    for (let i = 1; i <= numCompassos; i++) {
+        const x   = inicioX + i * larguraComp;
+        const bar = document.createElement('div');
+        bar.className        = 'measure-bar';
+        bar.style.left       = `${x}px`;
+        bar.style.position   = 'absolute';
+        bar.style.width      = '2px';
+        bar.style.height     = '58px';
+        bar.style.background = '#333';
+        bar.style.top        = '50%';
+        bar.style.transform  = 'translateY(-50%)';
+        measuresContainer.appendChild(bar);
+    }
+}
+
 function atualizarTudo() {
     document.querySelectorAll('.preview-container').forEach(pauta => {
         const img = pauta.querySelector('.clef');
@@ -206,10 +247,11 @@ function atualizarTudo() {
             timeSig.innerHTML      = `<span>${partes[0]}</span><span>${partes[1]}</span>`;
             timeSig.style.left     = `${getDinamicoInicioX()}px`;
         }
+
+        desenharBarrasDeCompasso(pauta);
     });
 }
- 
-// --- LIGADURAS ---
+
 function desenharLigadura(n1, n2, svg) {
     const x1 = parseFloat(n1.style.left);
     const y1 = parseFloat(n1.style.top);
@@ -305,6 +347,27 @@ function carregarFicheiro() {
     };
     input.click();
 }
+
+const modal = document.getElementById("about-modal");
+const btnOpen = document.getElementById("open-about");
+const btnClose = document.querySelector(".close-modal");
+
+if (btnOpen) {
+    btnOpen.onclick = function(e) {
+        e.preventDefault(); 
+        if (modal) modal.style.display = "block";
+    };
+}
+if (btnClose) {
+    btnClose.onclick = function() {
+        if (modal) modal.style.display = "none";
+    };
+}
+window.onclick = function(event) {
+    if (modal && event.target == modal) {
+        modal.style.display = "none";
+    }
+};
  
 document.getElementById('btn-salvar-cloud').addEventListener('click', downloadPartitura);
 document.getElementById('btn-carregar-cloud').addEventListener('click', carregarFicheiro);

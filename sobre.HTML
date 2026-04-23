@@ -1,27 +1,316 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-     <link rel="stylesheet" href="aaa.css">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre - Partifly</title>
+    <link rel="stylesheet" href="aaa.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+            overflow-x: hidden;
+        }
+ 
+        /* ── Hero ── */
+        .sobre-hero {
+            width: 100%;
+            max-width: 900px;
+            margin: 60px auto 0;
+            padding: 0 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+ 
+        .hero-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.8rem;
+            line-height: 1.1;
+            color: #2c3e50;
+            margin: 0 0 20px;
+        }
+ 
+        .hero-text h1 em {
+            font-style: italic;
+            color: #2ecc71;
+        }
+ 
+ 
+    
+ 
+   
+        @keyframes drawLine {
+            to { opacity: 1; transform: scaleX(1); }
+        }
+ 
+        @keyframes floatNote {
+            0%   { opacity: 0; transform: translateY(10px); }
+            30%  { opacity: 0.7; }
+            70%  { opacity: 0.7; }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+ 
+        /* ── Divider ── */
+        .divider {
+            width: 100%;
+            max-width: 900px;
+            margin: 60px auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 0 30px;
+        }
+ 
+        .divider-line { flex: 1; height: 1px; background: #ddd; }
+        .divider-icon { font-size: 1.5rem; color: #2ecc71; }
+ 
+        /* ── Proposta ── */
+        .proposta {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 60px;
+            padding: 0 30px;
+        }
+ 
+        .proposta h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+        }
+ 
+        .proposta h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: #2ecc71;
+            border-radius: 2px;
+        }
+ 
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 15px;
+        }
+ 
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+            border-top: 3px solid transparent;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            opacity: 0;
+            animation: fadeUp 0.5s ease forwards;
+        }
+ 
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.25s; }
+        .card:nth-child(3) { animation-delay: 0.4s; }
+ 
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(46,204,113,0.2);
+            border-color: #2ecc71;
+        }
+ 
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+ 
+        .card-icon {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+ 
+        .card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            color: #2c3e50;
+            margin: 0 0 10px;
+        }
+ 
+        .card p {
+            font-size: 0.9rem;
+            color: #777;
+            line-height: 1.7;
+            margin: 0;
+        }
+ 
+        /* ── Quote ── */
+        .quote-section {
+            width: 100%;
+            background: #2c3e50;
+            padding: 70px 30px;
+            text-align: center;
+            margin: 20px 0 60px;
+        }
+ 
+        .quote-section blockquote {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.6rem;
+            color: white;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+ 
+        .quote-section blockquote span {
+            color: #2ecc71;
+        }
+ 
+        .quote-section cite {
+            display: block;
+            margin-top: 20px;
+            color: rgba(255,255,255,0.5);
+            font-style: normal;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+ 
+        /* ── Equipa ── */
+        .equipa {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 80px;
+            padding: 0 30px;
+            text-align: center;
+        }
+ 
+        .equipa h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+ 
+        .equipa > p {
+            color: #888;
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+        }
+ 
+        .valores {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+ 
+        .valor {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+ 
+        .valor-circle {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 6px 20px rgba(46,204,113,0.3);
+        }
+ 
+        .valor span {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
 </head>
 <body>
-    
-     <header>
+ 
+    <header>
         <a href="home.html" target="_self">Home</a>
-        <a href="contatos.html"target="_self" >Contatos</a>
-        <a href="sobre.HTML"target="_self" >Sobre</a>
-        <a href="faq.html"target="_self" >FAQ</a>
-        <a href="login.html" target="_self">login</a>
+        <a href="sobre.HTML" target="_self">Sobre</a>
+        <a href="faq.html" target="_self">FAQ</a>
+        <a href="login.html" target="_self">Login</a>
     </header>
+ 
     <nav>PARTIFLY 🎵</nav>
-    <h1>sobre</h1>
-
-    <h2> A <strong>Partifly</strong> é uma página destinada a ajudar musicistas
-        a criarem suas próprias melodias do zero,
-        usando ferramentas fáceis e intuitivas,
-        para que possa compor com rapidez e facilidade. </h2>
+ 
+    <!-- Hero -->
+    <section class="sobre-hero">
+        <div class="hero-text">
+            <h1>Música ao alcance de <em>todos</em></h1>
+            <p>A Partifly nasceu com a missão de democratizar a escrita musical. Uma plataforma intuitiva onde a criatividade flui sem as barreiras técnicas de softwares complexos.</p>
+        </div>
+        
+    </section>
+ 
+    <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-icon">𝄞</div>
+        <div class="divider-line"></div>
+    </div>
+ 
+    <!-- Proposta -->
+    <section class="proposta">
+        <h2>Nossa proposta</h2>
+        <div class="cards">
+            <div class="card">
+                <span class="card-icon">🎼</span>
+                <h3>Composição Simplificada</h3>
+                <p>Interface visual clara e direta. Coloca notas no pentagrama com um simples clique, sem curva de aprendizagem.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">⚡</span>
+                <h3>Foco na Agilidade</h3>
+                <p>Ferramentas otimizadas para rapidez. Captura a tua inspiração no momento exato em que ela surge.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">🌍</span>
+                <h3>Acessibilidade Total</h3>
+                <p>Disponível na web, tablet e mobile. A tua partitura vai contigo — onde quer que a música aconteça.</p>
+            </div>
+        </div>
+    </section>
+    <!-- Valores -->
+    <section class="equipa">
+        <h2>Os nossos valores</h2>
+        <p>O que nos guia em cada decisão de produto</p>
+        <div class="valores">
+            <div class="valor">
+                <div class="valor-circle">🎯</div>
+                <span>Foco</span>
+            </div>
+            <div class="valor">
+                <div class="valor-circle">💡</div>
+                <span>Inovação</span>
+            </div>
+            <div class="valor">
+                <div class="valor-circle">🤝</div>
+                <span>Comunidade</span>
+            </div>
+            <div class="valor">
+                <div class="valor-circle">🎵</div>
+                <span>Paixão</span>
+            </div>
+            <div class="valor">
+                <div class="valor-circle">🔓</div>
+                <span>Acesso</span>
+            </div>
+        </div>
+    </section>
+ 
 </body>
 </html>
