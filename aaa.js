@@ -185,15 +185,12 @@ function configurarClique(pauta) {
     });
 }
  
-// Retorna quantos "beats de semínima" cabem num compasso para o compasso escolhido
 function getBeatsPerMeasure() {
-    const compasso = tempoSelector.value; // e.g. "4/4", "3/4", "6/8"
+    const compasso = tempoSelector.value; 
     const [num, den] = compasso.split('/').map(Number);
-    // Normaliza para unidades de semínima (quarter note)
     return (num * 4) / den;
 }
 
-// Largura visual de um beat (semínima) em pixels — ajuste este valor para mais/menos espaço
 const PX_POR_BEAT = 48;
 
 function desenharBarrasDeCompasso(pauta) {
@@ -204,8 +201,8 @@ function desenharBarrasDeCompasso(pauta) {
     measuresContainer.innerHTML = '';
 
     const pautaWidth  = pauta.offsetWidth || 800;
-    const inicioX     = getDinamicoInicioX() + 50; // após clave + armação + compasso
-    const larguraUtil = pautaWidth - inicioX - 14;  // 14px para a barra final
+    const inicioX     = getDinamicoInicioX() + 50; 
+    const larguraUtil = pautaWidth - inicioX - 14;
 
     const beats        = getBeatsPerMeasure();
     const larguraComp  = PX_POR_BEAT * beats;
@@ -368,7 +365,7 @@ window.onclick = function(event) {
         modal.style.display = "none";
     }
 };
- 
+
 document.getElementById('btn-salvar-cloud').addEventListener('click', downloadPartitura);
 document.getElementById('btn-carregar-cloud').addEventListener('click', carregarFicheiro);
  
